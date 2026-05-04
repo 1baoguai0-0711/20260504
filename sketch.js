@@ -38,13 +38,15 @@ function setup() {
       x: random(1),
       y: random(1),
       size: random(1, 3),
-      brightness: random(150, 255)
+      brightness: random(150, 255),
+      speed: random(0.05, 0.15) // 補上遺漏的 speed 屬性，確保閃爍功能正常
     });
   }
 
-  // 設定擷取影像的解析度
-  // 在手機上，不建議強制設定固定寬高，讓它隨視窗比例調整
-  capture.size(640, 480); // 設定擷取解析度，實際顯示大小由 draw() 控制
+  // 根據視窗方向初始化攝影機解析度
+  let camW = windowWidth > windowHeight ? 640 : 480;
+  let camH = windowWidth > windowHeight ? 480 : 640;
+  capture.size(camW, camH);
   
   // 隱藏預設在畫布下方的 HTML 影片元件，只在畫布內繪製
   capture.hide();
@@ -130,10 +132,12 @@ function draw() {
     rect(0, 0, imgW, imgH);
   }
 
-  // 在黑色背景區域繪製白色星星
+  // 在黑色背景區域繪製白色星星，加入平滑的閃爍 (Twinkling) 效果
   for (let s of stars) {
+    // 使用正弦波產生隨動態亮度，讓星空看起來是活的
+    let alpha = s.brightness + sin(frameCount * s.speed) * 40;
     noStroke();
-    fill(255, s.brightness); // 使用半透明白色增加遠近感
+    fill(255, constrain(alpha, 50, 255)); 
     circle(s.x * imgW, s.y * imgH, s.size);
   }
 
@@ -157,9 +161,12 @@ function drawConnectors(keypoints, indices, sx, sy) {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   
-  // 手機旋轉時，重新調整 capture 的 size 有助於瀏覽器重新校準攝影機串流
+  // 手機旋轉時，根據新的視窗比例動態調整攝影機解析度
+  // 這能確保 ml5.js 的偵測座標系統與顯示的影像比例保持同步，解決位移問題
   if (capture) {
-    capture.size(640, 480);
+    let camW = windowWidth > windowHeight ? 640 : 480;
+    let camH = windowWidth > windowHeight ? 480 : 640;
+    capture.size(camW, camH);
   }
 }
 
