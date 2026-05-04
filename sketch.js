@@ -56,7 +56,7 @@ function draw() {
   if (faces.length > 0) {
     let face = faces[0];
     stroke(255, 0, 0); // 設定線條顏色為紅色
-    strokeWeight(15);  // 設定線條粗細為 15
+    strokeWeight(1);   // 設定線條粗細為 1
     strokeCap(ROUND);  // 使線條末端圓滑，模擬塗口紅的質感
     strokeJoin(ROUND); // 使線條轉折處圓滑，避免尖角
     noFill();
@@ -75,8 +75,8 @@ function draw() {
       }
     }
 
-    // 繪製左眼外圈（獨立畫成一圈），統一粗細為 15
-    strokeWeight(15); 
+    // 繪製左眼外圈（獨立畫成一圈），統一粗細為 1
+    strokeWeight(1);
     for (let i = 0; i < leftEyeOuter.length; i++) {
       let p1 = face.keypoints[leftEyeOuter[i]];
       let p2 = face.keypoints[leftEyeOuter[(i + 1) % leftEyeOuter.length]];
