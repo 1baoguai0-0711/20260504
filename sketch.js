@@ -3,12 +3,10 @@ let faceMesh;
 let faces = [];
 // 指定要串接的臉部特徵點編號
 let faceIndices = [409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291];
-// 新增的內圈臉部特徵點編號
-let innerLipIndices = [76, 77, 90, 180, 85, 16, 315, 404, 320, 307, 306, 408, 304, 303, 302, 11, 72, 73, 74, 184];
-// 左眼外圈 (包含編號 247)
-let leftEyeOuterIndices = [130, 247, 30, 29, 27, 28, 56, 190, 243, 112, 26, 22, 23, 24, 110, 25];
-// 左眼內圈 (包含編號 246)
-let leftEyeInnerIndices = [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7];
+// 左眼外圈特徵點（包含 247）
+let leftEyeOuter = [130, 247, 30, 29, 27, 28, 56, 190, 243, 112, 26, 22, 23, 24, 110, 25];
+// 左眼內圈特徵點（包含 246）
+let leftEyeInner = [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7];
 
 function preload() {
   // 載入 ml5.js 的 FaceMesh 模型
@@ -77,32 +75,21 @@ function draw() {
       }
     }
 
-    // 繪製第二組指定的連線（內圈），同樣使用粗細 15 以達成完整的口紅塗抹感
-    strokeWeight(15);
-    for (let i = 0; i < innerLipIndices.length; i++) {
-      let p1 = face.keypoints[innerLipIndices[i]];
-      let p2 = face.keypoints[innerLipIndices[(i + 1) % innerLipIndices.length]];
+    // 繪製左眼外圈（獨立畫成一圈）
+    strokeWeight(5); // 眼睛線條稍微細一點以利辨識，若需與口紅一致可改回 15
+    for (let i = 0; i < leftEyeOuter.length; i++) {
+      let p1 = face.keypoints[leftEyeOuter[i]];
+      let p2 = face.keypoints[leftEyeOuter[(i + 1) % leftEyeOuter.length]];
       
       if (p1 && p2) {
         line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
       }
     }
 
-    // 繪製左眼外圈 (編號 247 所在路徑)
-    strokeWeight(5); // 設定眼部線條粗細為 5
-    for (let i = 0; i < leftEyeOuterIndices.length; i++) {
-      let p1 = face.keypoints[leftEyeOuterIndices[i]];
-      let p2 = face.keypoints[leftEyeOuterIndices[(i + 1) % leftEyeOuterIndices.length]];
-      
-      if (p1 && p2) {
-        line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
-      }
-    }
-
-    // 繪製左眼內圈 (編號 246 所在路徑)
-    for (let i = 0; i < leftEyeInnerIndices.length; i++) {
-      let p1 = face.keypoints[leftEyeInnerIndices[i]];
-      let p2 = face.keypoints[leftEyeInnerIndices[(i + 1) % leftEyeInnerIndices.length]];
+    // 繪製左眼內圈（獨立畫成一圈）
+    for (let i = 0; i < leftEyeInner.length; i++) {
+      let p1 = face.keypoints[leftEyeInner[i]];
+      let p2 = face.keypoints[leftEyeInner[(i + 1) % leftEyeInner.length]];
       
       if (p1 && p2) {
         line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
