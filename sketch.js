@@ -53,16 +53,18 @@ function draw() {
     let face = faces[0];
     stroke(255, 0, 0); // 設定線條顏色為紅色
     strokeWeight(15);  // 設定線條粗細為 15
+    strokeCap(ROUND);  // 使線條末端圓滑
+    strokeJoin(ROUND); // 使線條轉折處圓滑
     noFill();
 
     // 計算縮放比例，以將偵測到的座標對應到顯示的大小 (50% 螢幕寬高)
     let sx = imgW / capture.width;
     let sy = imgH / capture.height;
 
-    // 依序串接點位
-    for (let i = 0; i < faceIndices.length - 1; i++) {
+    // 依序串接點位，並首尾相連形成封閉的口紅輪廓
+    for (let i = 0; i < faceIndices.length; i++) {
       let p1 = face.keypoints[faceIndices[i]];
-      let p2 = face.keypoints[faceIndices[i + 1]];
+      let p2 = face.keypoints[faceIndices[(i + 1) % faceIndices.length]];
       
       if (p1 && p2) {
         line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
