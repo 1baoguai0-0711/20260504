@@ -3,6 +3,8 @@ let faceMesh;
 let faces = [];
 // 指定要串接的臉部特徵點編號
 let faceIndices = [409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291];
+// 新增的內圈臉部特徵點編號
+let innerLipIndices = [76, 77, 90, 180, 85, 16, 315, 404, 320, 307, 306, 408, 304, 303, 302, 11, 72, 73, 74, 184];
 
 function preload() {
   // 載入 ml5.js 的 FaceMesh 模型
@@ -65,6 +67,17 @@ function draw() {
     for (let i = 0; i < faceIndices.length; i++) {
       let p1 = face.keypoints[faceIndices[i]];
       let p2 = face.keypoints[faceIndices[(i + 1) % faceIndices.length]];
+      
+      if (p1 && p2) {
+        line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
+      }
+    }
+
+    // 繪製第二組指定的連線（內圈），粗細為 1
+    strokeWeight(1);
+    for (let i = 0; i < innerLipIndices.length; i++) {
+      let p1 = face.keypoints[innerLipIndices[i]];
+      let p2 = face.keypoints[innerLipIndices[(i + 1) % innerLipIndices.length]];
       
       if (p1 && p2) {
         line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
