@@ -3,10 +3,18 @@ let faceMesh;
 let faces = [];
 // 指定要串接的臉部特徵點編號
 let faceIndices = [409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291];
-// 左眼外圈特徵點（包含 247）
-let leftEyeOuter = [130, 247, 30, 29, 27, 28, 56, 190, 243, 112, 26, 22, 23, 24, 110, 25];
-// 左眼內圈特徵點（包含 246）
-let leftEyeInner = [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7];
+// 新增另一組要串接的臉部特徵點編號
+let innerLipIndices = [76, 77, 90, 180, 85, 16, 315, 404, 320, 307, 306, 408, 304, 303, 302, 11, 72, 73, 74, 184];
+// 右眼外圈特徵點 (包含與 247 對稱的 467)
+let rightEyeOuterIndices = [359, 467, 260, 259, 257, 258, 286, 414, 463, 341, 256, 252, 253, 254, 339, 255];
+// 右眼內圈特徵點 (包含與 246 對稱 of 466)
+let rightEyeInnerIndices = [263, 466, 388, 387, 386, 385, 384, 398, 362, 382, 381, 380, 374, 373, 390, 249];
+// 左眼外圈特徵點 (包含編號 247)
+let leftEyeOuterIndices = [130, 247, 30, 29, 27, 28, 56, 190, 243, 112, 26, 22, 23, 24, 110, 25];
+// 左眼內圈特徵點 (包含編號 246)
+let leftEyeInnerIndices = [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7];
+// 臉部最外層輪廓特徵點 (Face Oval)
+let faceOvalIndices = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
 
 function preload() {
   // 載入 ml5.js 的 FaceMesh 模型
@@ -65,22 +73,26 @@ function draw() {
     let sx = capture.width > 0 ? imgW / capture.width : 1;
     let sy = capture.height > 0 ? imgH / capture.height : 1;
 
-    // 將線條圖案向左傾斜 90 度 (以顯示影像的中心為旋轉中心)
-    push();
-    translate(imgW / 2, imgH / 2);
-    rotate(-HALF_PI);
-    translate(-imgW / 2, -imgH / 2);
-
-    // 使用封裝函式繪製所有特徵區域，減少重複程式碼並提升可讀性
-    // 1. 嘴部輪廓
+    // 根據指定編號串接嘴部輪廓
     drawConnectors(face.keypoints, faceIndices, sx, sy);
-    
-    // 2. 左眼外圈 (含編號 247)
-    drawConnectors(face.keypoints, leftEyeOuter, sx, sy);
-    
-    // 3. 左眼內圈 (含編號 246)
-    drawConnectors(face.keypoints, leftEyeInner, sx, sy);
-    pop();
+
+    // 根據新增的編號串接另一組輪廓線
+    drawConnectors(face.keypoints, innerLipIndices, sx, sy);
+
+    // 繪製右眼外圈 (獨立一圈)
+    drawConnectors(face.keypoints, rightEyeOuterIndices, sx, sy);
+
+    // 繪製右眼內圈 (獨立一圈)
+    drawConnectors(face.keypoints, rightEyeInnerIndices, sx, sy);
+
+    // 繪製左眼外圈 (獨立一圈)
+    drawConnectors(face.keypoints, leftEyeOuterIndices, sx, sy);
+
+    // 繪製左眼內圈 (獨立一圈)
+    drawConnectors(face.keypoints, leftEyeInnerIndices, sx, sy);
+
+    // 繪製臉部最外層輪廓
+    drawConnectors(face.keypoints, faceOvalIndices, sx, sy);
   }
   pop();
 }
