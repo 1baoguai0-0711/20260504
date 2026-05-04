@@ -73,8 +73,8 @@ function draw() {
       }
     }
 
-    // 繪製第二組指定的連線（內圈），粗細為 1
-    strokeWeight(1);
+    // 繪製第二組指定的連線（內圈），同樣使用粗細 15 以達成完整的口紅塗抹感
+    strokeWeight(15);
     for (let i = 0; i < innerLipIndices.length; i++) {
       let p1 = face.keypoints[innerLipIndices[i]];
       let p2 = face.keypoints[innerLipIndices[(i + 1) % innerLipIndices.length]];
