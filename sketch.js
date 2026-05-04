@@ -26,11 +26,24 @@ function preload() {
 function setup() {
   // 建立全螢幕畫布
   createCanvas(windowWidth, windowHeight);
+  // 強制設定像素密度為 1，這是解決手機端座標偏移的最關鍵步驟
+  pixelDensity(1);
   
   // 初始化攝影機擷取
   capture = createCapture(VIDEO);
   
-  // 設定擷取影像的預設大小（可隨視窗縮放調整）
+  // 初始化星星 (隨機產生 150 顆)
+  for (let i = 0; i < 150; i++) {
+    stars.push({
+      x: random(1),
+      y: random(1),
+      size: random(1, 3),
+      brightness: random(150, 255)
+    });
+  }
+
+  // 設定擷取影像的解析度
+  // 在手機上，不建議強制設定固定寬高，讓它隨視窗比例調整
   capture.size(640, 480); // 設定擷取解析度，實際顯示大小由 draw() 控制
   
   // 隱藏預設在畫布下方的 HTML 影片元件，只在畫布內繪製
@@ -143,6 +156,11 @@ function drawConnectors(keypoints, indices, sx, sy) {
 // 當視窗大小改變時，自動調整畫布大小
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  
+  // 手機旋轉時，重新調整 capture 的 size 有助於瀏覽器重新校準攝影機串流
+  if (capture) {
+    capture.size(640, 480);
+  }
 }
 
 function gotFaces(results) {
