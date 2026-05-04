@@ -57,14 +57,14 @@ function draw() {
   translate(x + imgW, y);
   scale(-1, 1);
   
-  // 繪製指定的臉部辨識連線
   if (faces.length > 0) {
     let face = faces[0];
-    // 計算縮放比例，以將偵測到的座標對應到顯示的大小 (50% 螢幕寬高)
+    
+    // 動態計算縮放比例，確保線條座標隨影像大小與解析度即時調整
     let sx = capture.width > 0 ? imgW / capture.width : 1;
     let sy = capture.height > 0 ? imgH / capture.height : 1;
 
-    // 1. 先繪製影像
+    // 1. 繪製攝影機影像
     image(capture, 0, 0, imgW, imgH);
 
     // 2. 繪製黑色遮罩，挖出臉部區域
@@ -85,13 +85,14 @@ function draw() {
     endContour();
     endShape(CLOSE);
 
-    // 3. 繪製紅色特徵連線
+    // 3. 繪製紅色特徵連線 (線條將跟隨臉部 keypoints 移動)
     stroke(255, 0, 0);
     strokeWeight(1);
     strokeCap(ROUND);
     strokeJoin(ROUND);
     noFill();
 
+    // 依序呼叫繪製函式，確保嘴部、雙眼及臉廓線條精準跟隨
     drawConnectors(face.keypoints, faceIndices, sx, sy);
     drawConnectors(face.keypoints, innerLipIndices, sx, sy);
     drawConnectors(face.keypoints, rightEyeOuterIndices, sx, sy);
