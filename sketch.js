@@ -65,38 +65,30 @@ function draw() {
     let sx = capture.width > 0 ? imgW / capture.width : 1;
     let sy = capture.height > 0 ? imgH / capture.height : 1;
 
-    // 依序串接點位，並首尾相連形成封閉的口紅輪廓
-    for (let i = 0; i < faceIndices.length; i++) {
-      let p1 = face.keypoints[faceIndices[i]];
-      let p2 = face.keypoints[faceIndices[(i + 1) % faceIndices.length]];
-      
-      if (p1 && p2) {
-        line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
-      }
-    }
-
-    // 繪製左眼外圈（獨立畫成一圈），統一粗細為 1
-    strokeWeight(1);
-    for (let i = 0; i < leftEyeOuter.length; i++) {
-      let p1 = face.keypoints[leftEyeOuter[i]];
-      let p2 = face.keypoints[leftEyeOuter[(i + 1) % leftEyeOuter.length]];
-      
-      if (p1 && p2) {
-        line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
-      }
-    }
-
-    // 繪製左眼內圈（獨立畫成一圈）
-    for (let i = 0; i < leftEyeInner.length; i++) {
-      let p1 = face.keypoints[leftEyeInner[i]];
-      let p2 = face.keypoints[leftEyeInner[(i + 1) % leftEyeInner.length]];
-      
-      if (p1 && p2) {
-        line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
-      }
-    }
+    // 使用封裝函式繪製所有特徵區域，減少重複程式碼並提升可讀性
+    // 1. 嘴部輪廓
+    drawConnectors(face.keypoints, faceIndices, sx, sy);
+    
+    // 2. 左眼外圈 (含編號 247)
+    drawConnectors(face.keypoints, leftEyeOuter, sx, sy);
+    
+    // 3. 左眼內圈 (含編號 246)
+    drawConnectors(face.keypoints, leftEyeInner, sx, sy);
   }
   pop();
+}
+
+/**
+ * 輔助函式：根據索引陣列串接特徵點並繪製閉合線條
+ */
+function drawConnectors(keypoints, indices, sx, sy) {
+  for (let i = 0; i < indices.length; i++) {
+    let p1 = keypoints[indices[i]];
+    let p2 = keypoints[indices[(i + 1) % indices.length]];
+    if (p1 && p2) {
+      line(p1.x * sx, p1.y * sy, p2.x * sx, p2.y * sy);
+    }
+  }
 }
 
 // 當視窗大小改變時，自動調整畫布大小
