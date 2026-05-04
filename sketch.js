@@ -15,6 +15,8 @@ let leftEyeOuterIndices = [130, 247, 30, 29, 27, 28, 56, 190, 243, 112, 26, 22, 
 let leftEyeInnerIndices = [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7];
 // 臉部最外層輪廓特徵點 (Face Oval)
 let faceOvalIndices = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+// 用來儲存星星座標的陣列
+let stars = [];
 
 function preload() {
   // 載入 ml5.js 的 FaceMesh 模型
@@ -67,25 +69,29 @@ function draw() {
     // 1. 繪製攝影機影像
     image(capture, 0, 0, imgW, imgH);
 
-    // 2. 繪製黑色遮罩，挖出臉部區域
-    fill(0); // 黑色填充
+    // 2. 建立遮罩：塗滿臉部以外的區域
+    fill(0); // 遮罩顏色為黑色
     noStroke();
     beginShape();
-    // 外部矩形（涵蓋整個擷取視窗）
+    // 定義遮罩的外部邊界（整個 50% 影像視窗）
     vertex(0, 0);
     vertex(imgW, 0);
     vertex(imgW, imgH);
     vertex(0, imgH);
-    // 內部孔洞（臉部外層輪廓）
+    
+    // 使用 beginContour 在黑色矩形中「挖洞」
     beginContour();
-    for (let i = 0; i < faceOvalIndices.length; i++) {
+    // 為了確保遮罩正確運作，內部路徑的頂點順序需與外部相反（或依照 FaceMesh 順序）
+    // 這裡依序讀取臉部外輪廓座標
+    for (let i = faceOvalIndices.length - 1; i >= 0; i--) {
       let p = face.keypoints[faceOvalIndices[i]];
       vertex(p.x * sx, p.y * sy);
     }
     endContour();
     endShape(CLOSE);
 
-    // 3. 繪製紅色特徵連線 (線條將跟隨臉部 keypoints 移動)
+    // 3. 繪製特徵連線（線條會顯示在臉部上方）
+    // 如果您希望只看見臉部而不需要紅線，可以將以下段落移除
     stroke(255, 0, 0);
     strokeWeight(1);
     strokeCap(ROUND);
@@ -99,12 +105,25 @@ function draw() {
     drawConnectors(face.keypoints, rightEyeInnerIndices, sx, sy);
     drawConnectors(face.keypoints, leftEyeOuterIndices, sx, sy);
     drawConnectors(face.keypoints, leftEyeInnerIndices, sx, sy);
+
+    // 為臉部最外層輪廓加上霓虹光暈效果
+    drawingContext.shadowBlur = 15;        // 設定光暈模糊程度
+    drawingContext.shadowColor = color(255, 0, 0); // 設定光暈顏色為紅色
     drawConnectors(face.keypoints, faceOvalIndices, sx, sy);
+    drawingContext.shadowBlur = 0;         // 繪製完後重設，避免影響後續繪圖內容
   } else {
     // 如果沒偵測到臉部，顯示黑色區塊
     fill(0);
     rect(0, 0, imgW, imgH);
   }
+
+  // 在黑色背景區域繪製白色星星
+  for (let s of stars) {
+    noStroke();
+    fill(255, s.brightness); // 使用半透明白色增加遠近感
+    circle(s.x * imgW, s.y * imgH, s.size);
+  }
+
   pop();
 }
 
