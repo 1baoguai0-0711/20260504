@@ -57,42 +57,52 @@ function draw() {
   translate(x + imgW, y);
   scale(-1, 1);
   
-  // 繪製影像，注意因為 scale 翻轉了座標系，此處座標設為 (0, 0)
-  image(capture, 0, 0, imgW, imgH);
-
   // 繪製指定的臉部辨識連線
   if (faces.length > 0) {
     let face = faces[0];
-    stroke(255, 0, 0); // 設定線條顏色為紅色
-    strokeWeight(1);   // 設定線條粗細為 1
-    strokeCap(ROUND);  // 使線條末端圓滑，模擬塗口紅的質感
-    strokeJoin(ROUND); // 使線條轉折處圓滑，避免尖角
-    noFill();
-
     // 計算縮放比例，以將偵測到的座標對應到顯示的大小 (50% 螢幕寬高)
     let sx = capture.width > 0 ? imgW / capture.width : 1;
     let sy = capture.height > 0 ? imgH / capture.height : 1;
 
-    // 根據指定編號串接嘴部輪廓
+    // 1. 先繪製影像
+    image(capture, 0, 0, imgW, imgH);
+
+    // 2. 繪製黑色遮罩，挖出臉部區域
+    fill(0); // 黑色填充
+    noStroke();
+    beginShape();
+    // 外部矩形（涵蓋整個擷取視窗）
+    vertex(0, 0);
+    vertex(imgW, 0);
+    vertex(imgW, imgH);
+    vertex(0, imgH);
+    // 內部孔洞（臉部外層輪廓）
+    beginContour();
+    for (let i = 0; i < faceOvalIndices.length; i++) {
+      let p = face.keypoints[faceOvalIndices[i]];
+      vertex(p.x * sx, p.y * sy);
+    }
+    endContour();
+    endShape(CLOSE);
+
+    // 3. 繪製紅色特徵連線
+    stroke(255, 0, 0);
+    strokeWeight(1);
+    strokeCap(ROUND);
+    strokeJoin(ROUND);
+    noFill();
+
     drawConnectors(face.keypoints, faceIndices, sx, sy);
-
-    // 根據新增的編號串接另一組輪廓線
     drawConnectors(face.keypoints, innerLipIndices, sx, sy);
-
-    // 繪製右眼外圈 (獨立一圈)
     drawConnectors(face.keypoints, rightEyeOuterIndices, sx, sy);
-
-    // 繪製右眼內圈 (獨立一圈)
     drawConnectors(face.keypoints, rightEyeInnerIndices, sx, sy);
-
-    // 繪製左眼外圈 (獨立一圈)
     drawConnectors(face.keypoints, leftEyeOuterIndices, sx, sy);
-
-    // 繪製左眼內圈 (獨立一圈)
     drawConnectors(face.keypoints, leftEyeInnerIndices, sx, sy);
-
-    // 繪製臉部最外層輪廓
     drawConnectors(face.keypoints, faceOvalIndices, sx, sy);
+  } else {
+    // 如果沒偵測到臉部，顯示黑色區塊
+    fill(0);
+    rect(0, 0, imgW, imgH);
   }
   pop();
 }
