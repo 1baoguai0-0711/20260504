@@ -55,13 +55,13 @@ function draw() {
     let face = faces[0];
     stroke(255, 0, 0); // 設定線條顏色為紅色
     strokeWeight(15);  // 設定線條粗細為 15
-    strokeCap(ROUND);  // 使線條末端圓滑
-    strokeJoin(ROUND); // 使線條轉折處圓滑
+    strokeCap(ROUND);  // 使線條末端圓滑，模擬塗口紅的質感
+    strokeJoin(ROUND); // 使線條轉折處圓滑，避免尖角
     noFill();
 
     // 計算縮放比例，以將偵測到的座標對應到顯示的大小 (50% 螢幕寬高)
-    let sx = imgW / capture.width;
-    let sy = imgH / capture.height;
+    let sx = capture.width > 0 ? imgW / capture.width : 1;
+    let sy = capture.height > 0 ? imgH / capture.height : 1;
 
     // 依序串接點位，並首尾相連形成封閉的口紅輪廓
     for (let i = 0; i < faceIndices.length; i++) {
