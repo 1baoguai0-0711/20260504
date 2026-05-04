@@ -75,8 +75,8 @@ function draw() {
       }
     }
 
-    // 繪製左眼外圈（獨立畫成一圈）
-    strokeWeight(5); // 眼睛線條稍微細一點以利辨識，若需與口紅一致可改回 15
+    // 繪製左眼外圈（獨立畫成一圈），統一粗細為 15
+    strokeWeight(15); 
     for (let i = 0; i < leftEyeOuter.length; i++) {
       let p1 = face.keypoints[leftEyeOuter[i]];
       let p2 = face.keypoints[leftEyeOuter[(i + 1) % leftEyeOuter.length]];
