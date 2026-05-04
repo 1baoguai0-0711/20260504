@@ -29,8 +29,17 @@ function setup() {
   // 強制設定像素密度為 1，這是解決手機端座標偏移的最關鍵步驟
   pixelDensity(1);
   
-  // 初始化攝影機擷取
-  capture = createCapture(VIDEO);
+  // 根據手機目前方向 (直向或橫向) 設定攝影機約束條件
+  // 這會強制瀏覽器提供符合當前螢幕方向的影像串流，解決辨識點偏移問題
+  let isLandscape = windowWidth > windowHeight;
+  let constraints = {
+    video: {
+      facingMode: "user",
+      width: { ideal: isLandscape ? 640 : 480 },
+      height: { ideal: isLandscape ? 480 : 640 }
+    }
+  };
+  capture = createCapture(constraints);
   
   // 初始化星星 (隨機產生 150 顆)
   for (let i = 0; i < 150; i++) {
@@ -43,10 +52,8 @@ function setup() {
     });
   }
 
-  // 根據視窗方向初始化攝影機解析度
-  let camW = windowWidth > windowHeight ? 640 : 480;
-  let camH = windowWidth > windowHeight ? 480 : 640;
-  capture.size(camW, camH);
+  // 強制設定擷取影像的大小，作為 sx 與 sy 比例計算的穩定基礎
+  capture.size(isLandscape ? 640 : 480, isLandscape ? 480 : 640);
   
   // 隱藏預設在畫布下方的 HTML 影片元件，只在畫布內繪製
   capture.hide();
@@ -161,12 +168,13 @@ function drawConnectors(keypoints, indices, sx, sy) {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   
-  // 手機旋轉時，根據新的視窗比例動態調整攝影機解析度
-  // 這能確保 ml5.js 的偵測座標系統與顯示的影像比例保持同步，解決位移問題
+  // 螢幕旋轉時重新設定解析度方向
+  // 確保擷取影像的寬高比與偵測系統的座標映射 (sx, sy) 始終同步
   if (capture) {
-    let camW = windowWidth > windowHeight ? 640 : 480;
-    let camH = windowWidth > windowHeight ? 480 : 640;
-    capture.size(camW, camH);
+    let isLandscape = windowWidth > windowHeight;
+    let targetW = isLandscape ? 640 : 480;
+    let targetH = isLandscape ? 480 : 640;
+    capture.size(targetW, targetH);
   }
 }
 
