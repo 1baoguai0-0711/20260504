@@ -65,6 +65,12 @@ function draw() {
     let sx = capture.width > 0 ? imgW / capture.width : 1;
     let sy = capture.height > 0 ? imgH / capture.height : 1;
 
+    // 將線條圖案向左傾斜 90 度 (以顯示影像的中心為旋轉中心)
+    push();
+    translate(imgW / 2, imgH / 2);
+    rotate(-HALF_PI);
+    translate(-imgW / 2, -imgH / 2);
+
     // 使用封裝函式繪製所有特徵區域，減少重複程式碼並提升可讀性
     // 1. 嘴部輪廓
     drawConnectors(face.keypoints, faceIndices, sx, sy);
@@ -74,6 +80,7 @@ function draw() {
     
     // 3. 左眼內圈 (含編號 246)
     drawConnectors(face.keypoints, leftEyeInner, sx, sy);
+    pop();
   }
   pop();
 }
